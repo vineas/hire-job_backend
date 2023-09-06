@@ -12,7 +12,8 @@ CREATE TABLE
         pekerja_jobdesk VARCHAR(255),
         pekerja_domisili VARCHAR(255),
         pekerja_tempat_kerja VARCHAR(255),
-        pekerja_deskripsi VARCHAR(255)
+        pekerja_deskripsi VARCHAR(255),
+        skill_id VARCHAR
     );
 
 CREATE TABLE

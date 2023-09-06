@@ -10,7 +10,7 @@ const selectAllSkill = ({ limit, offset, sort, sortby }) => {
 // SELECT RICAPES BY users and recipes id
 const selectSkill = (pekerja_id) => {
   return Pool.query(`
-  SELECT skill.*, pekerja.*
+  SELECT skill.*, pekerja.*,
   FROM skill
   LEFT JOIN pekerja ON skill.pekerja_id = pekerja.pekerja_id
   WHERE skill.pekerja_id = '${pekerja_id}'
