@@ -13,11 +13,6 @@ const selectAllpekerja = ({ limit, offset, sort, sortby }) => {
   );
 };
 
-// const selectAllUsers = ({limit, offset, sort, sortby}) => {
-//   return Pool.query(
-//     SELECT users.id, name, email, users.photo, job_position, company_name, phone, location, role, array_agg(skills.skill_name ORDER BY skills.skill_name ) AS skills FROM users LEFT JOIN skills ON users.id = skills.id_users GROUP BY users.id, name, email, users.photo, job_position, company_name, phone, location, role ORDER BY ${sortby} ${sort} LIMIT ${limit} OFFSET ${offset}
-//   );
-// };
 
 //GET SELECT pekerja
 const selectpekerja = (pekerja_id) => {
