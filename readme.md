@@ -1,7 +1,7 @@
 <br />
 <p align="center">
   <div align="center">
-    <img height="150" src="https://cdn.discordapp.com/attachments/1118733891738554480/1146038619325349898/logo-removebg-preview.png" alt="peworld" border="0"/>
+    <img height="150" src="https://cdn.discordapp.com/attachments/1118733891738554480/1147830303457550416/Screenshot_120-removebg-preview.png" alt="peworld" border="0"/>
   </div>
   <h3 align="center">Peworld</h3>
   <p align="center">
