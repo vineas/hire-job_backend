@@ -267,7 +267,7 @@ let pekerjaController = {
         rows: [pekerja],
       } = await findEmail(pekerja_email);
       if (!pekerja) {
-        return res.json({ message: "Email Incorrect" });
+        return res.json({ message: "Email not found" });
       }
       const isValidPassword = bcrypt.compareSync(
         pekerja_confirmpassword,
