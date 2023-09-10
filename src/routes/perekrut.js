@@ -3,7 +3,7 @@ const router = express.Router();
 const uploadPerekrut = require("../middlewares/uploadPerekrut");
 const perekrutController = require("../controller/perekrut");
 router
-  .post("/register", uploadPerekrut, perekrutController.registerperekrut)
+  .post("/register", perekrutController.registerperekrut)
   .post("/login", perekrutController.loginperekrut)
   .get("/profile/:id", perekrutController.getSelectperekrut)
   .get("/profile", perekrutController.getAllperekrut)

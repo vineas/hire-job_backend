@@ -83,11 +83,7 @@ let perekrutController = {
     }
 
     const perekrut_id = uuidv4();
-    let perekrut_photo = null;
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      perekrut_photo = result.secure_url;
-    }
+
     const schema = Joi.object().keys({
       perekrut_name: Joi.string().required(),
       perekrut_email: Joi.required(),
@@ -95,8 +91,7 @@ let perekrutController = {
       perekrut_jabatan: Joi.string().required(),
       perekrut_phone: Joi.string().min(10).max(12),
       perekrut_password: Joi.string().min(3).max(15).required(),
-      perekrut_confirmpassword: Joi.ref("perekrut_password"),
-      perekrut_photo: Joi.string().allow(""),
+      perekrut_confirmpassword: Joi.ref("perekrut_password")
     });
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
@@ -115,7 +110,6 @@ let perekrutController = {
       perekrut_phone,
       perekrut_password,
       perekrut_confirmpasswordHash,
-      perekrut_photo 
     };
     createperekrut(data)
       .then((result) =>

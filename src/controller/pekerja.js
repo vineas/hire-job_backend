@@ -2,8 +2,11 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
+const createError = require("http-errors");
 const authHelper = require("../helper/auth");
 const commonHelper = require("../helper/common");
+const sendEmail = require("../middlewares/sendemail");
+const crypto = require("crypto");
 const cloudinary = require("../middlewares/cloudinary");
 let {
   selectAllpekerja,
@@ -15,6 +18,12 @@ let {
   findUUID,
   findEmail,
   countData,
+  registerPekerja, createPekerjaVerification,
+  checkPekerjaVerification,
+  cekPekerja,
+  deletePekerjaVerification,
+  updateAccountVerification,
+  findId
 } = require("../model/pekerja");
 
 let pekerjaController = {
@@ -68,58 +77,252 @@ let pekerjaController = {
   },
 
   registerPekerja: async (req, res) => {
-    const {
-      pekerja_name,
-      pekerja_email,
-      pekerja_phone,
-      pekerja_password,
-      pekerja_confirmpassword,
-    } = req.body;
-    const { rowCount } = await findEmail(pekerja_email);
-    if (rowCount) {
-      return res.json({ message: "Email Already Taken" });
+    try {
+      const {
+        pekerja_name,
+        pekerja_email,
+        pekerja_phone,
+        pekerja_password,
+        pekerja_confirmpassword,
+      } = req.body;
+      // const { rowCount } = await findEmail(pekerja_email);
+      // if (rowCount) {
+      //   return res.json({ message: "Email Already Taken" });
+      // }
+
+      const checkEmail = await findEmail(pekerja_email);
+      try {
+        if (checkEmail.rowCount == 1) throw "Email already used";
+        // delete checkEmail.rows[0].password;
+      } catch (error) {
+        delete checkEmail.rows[0].password;
+        return commonHelper.response(res, null, 403, error);
+      }
+
+      const saltRounds = 10;
+      const pekerja_confirmpasswordHash = bcrypt.hashSync(pekerja_confirmpassword, saltRounds);
+      const pekerja_id = uuidv4().toLocaleLowerCase();
+
+      // verification
+      const verify = "false";
+      const pekerja_verification_id = uuidv4().toLocaleLowerCase();
+      const users_id = pekerja_id;
+      const token = crypto.randomBytes(64).toString("hex");
+
+      // url localhost
+      const url = `${process.env.BASE_URL}pekerja/verify?id=${users_id}&token=${token}`;
+
+      //send email
+      await sendEmail(pekerja_email, "Verify Email", url);
+
+      // insert db table users
+      // await registerPekerja(id, email, passwordHash, verify);
+      await registerPekerja(
+        pekerja_id,
+        pekerja_email,
+        pekerja_password,
+        pekerja_confirmpasswordHash,
+        pekerja_name,
+        pekerja_phone,
+        verify);
+
+      // insert db table verification
+      await createPekerjaVerification(
+        pekerja_verification_id,
+        users_id,
+        token
+      );
+      commonHelper.response(
+        res,
+        null,
+        201,
+        "Sign Up Success, Please check your email for verification"
+      );
+
+      // const pekerja_id = uuidv4();
+      // const schema = Joi.object().keys({
+      //   pekerja_email: Joi.required(),
+      //   pekerja_name: Joi.string().required(),
+      //   pekerja_phone: Joi.string().min(10).max(12),
+      //   pekerja_password: Joi.string().min(3).max(15).required(),
+      //   pekerja_confirmpassword: Joi.ref("pekerja_password"),
+      // });
+      // const { error, value } = schema.validate(req.body, {
+      //   abortEarly: false,
+      // });
+      // if (error) {
+      //   console.log(error);
+      //   return res.send(error.details);
+      // }
+
+    } catch (error) {
+      console.log(error);
+      res.send(createError(400));
     }
 
-    const pekerja_id = uuidv4();
-    // let pekerja_photo = null;
-    // if (req.file) {
-    //   const result = await cloudinary.uploader.upload(req.file.path);
-    //   pekerja_photo = result.secure_url;
-    // }
-    const schema = Joi.object().keys({
-      pekerja_email: Joi.required(),
-      pekerja_name: Joi.string().required(),
-      pekerja_phone: Joi.string().min(10).max(12),
-      pekerja_password: Joi.string().min(3).max(15).required(),
-      pekerja_confirmpassword: Joi.ref("pekerja_password"),
-      // pekerja_photo: Joi.string().allow(""),
-    });
-    const { error, value } = schema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error) {
+
+    // const pekerja_confirmpasswordHash = bcrypt.hashSync(pekerja_confirmpassword);
+    // const data = {
+    //   pekerja_id,
+    //   pekerja_name,
+    //   pekerja_email,
+    //   pekerja_phone,
+    //   pekerja_confirmpasswordHash,
+    //   // pekerja_photo,
+    // };
+    // registerPekerja(data)
+    //   .then((result) =>
+    //     commonHelper.response(res, result.rows, 201, "Create User Success")
+    //   )
+    //   .catch((err) => res.send(err));
+  },
+
+  VerifyAccount: async (req, res) => {
+    try {
+      const queryPekerjaId = req.query.id;
+      const queryToken = req.query.token;
+
+      if (typeof queryPekerjaId === "string" && typeof queryToken === "string") {
+        const checkPekerjaVerify = await findId(queryPekerjaId);
+
+        if (checkPekerjaVerify.rowCount == 0) {
+          return commonHelper.response(
+            res,
+            null,
+            403,
+            "Error users has not found"
+          );
+        }
+
+        if (checkPekerjaVerify.rows[0].verify != "false") {
+          return commonHelper.response(
+            res,
+            null,
+            403,
+            "Users has been verified"
+          );
+        }
+
+        const result = await checkPekerjaVerification(
+          queryPekerjaId,
+          queryToken
+        );
+
+        if (result.rowCount == 0) {
+          return commonHelper.response(
+            res,
+            null,
+            403,
+            "Error invalid credential verification"
+          );
+        } else {
+          await updateAccountVerification(queryPekerjaId);
+          await deletePekerjaVerification(queryPekerjaId, queryToken);
+          commonHelper.response(res, null, 200, "Users verified succesful");
+        }
+      } else {
+        return commonHelper.response(
+          res,
+          null,
+          403,
+          "Invalid url verification"
+        );
+      }
+    } catch (error) {
       console.log(error);
-      return res.send(error.details);
+
+      // res.send(createError(404));
     }
-    const pekerja_confirmpasswordHash = bcrypt.hashSync(pekerja_confirmpassword);
-    const data = {
-      pekerja_id,
-      pekerja_name,
-      pekerja_email,
-      pekerja_phone,
-      pekerja_confirmpasswordHash,
-      // pekerja_photo,
-    };
-    createpekerja(data)
-      .then((result) =>
-        commonHelper.response(res, result.rows, 201, "Create User Success")
-      )
-      .catch((err) => res.send(err));
+  },
+
+
+  loginpekerja: async (req, res) => {
+    // const { pekerja_email, pekerja_confirmpassword } = req.body;
+    // const {
+    //   rows: [pekerja],
+    // } = await findEmail(pekerja_email);
+    // if (!pekerja) {
+    //   return res.json({ message: "Email Wrong" });
+    // }
+    // const isValidPassword = bcrypt.compareSync(
+    //   pekerja_confirmpassword,
+    //   pekerja.pekerja_confirmpassword
+    // );
+    // if (!isValidPassword) {
+    //   return res.json({ message: "Password Wrong" });
+    // }
+    // delete pekerja.pekerja_confirmpassword;
+    // const payload = {
+    //   pekerja_email: pekerja.pekerja_email,
+    // };
+    // pekerja.token_user = authHelper.generateToken(payload);
+    // pekerja.refreshToken = authHelper.generateRefreshToken(payload);
+    // commonHelper.response(res, pekerja, 201, "Login Successfuly");
+
+    // ==================================================================//
+
+    try {
+      const { pekerja_email, pekerja_confirmpassword } = req.body;
+      const {
+        rows: [pekerja],
+      } = await findEmail(pekerja_email);
+      if (!pekerja) {
+        return res.json({ message: "Email Incorrect" });
+      }
+      const isValidPassword = bcrypt.compareSync(
+        pekerja_confirmpassword,
+        pekerja.pekerja_confirmpassword
+      );
+      if (!isValidPassword) {
+        return res.json({ message: "Password Incorrect" });
+      }
+      const { rows: [verify] } = await cekPekerja(pekerja_email);
+      console.log(verify.verify);
+      if (verify.verify === "false") {
+        return res.json({
+          message: "user is unverify"
+        })
+      }
+
+      // if (!pekerja) {
+      //   return commonHelper.response(res, null, 403, "Email is invalid");
+      // }
+      // const isValidPassword = bcrypt.compareSync(pekerja_confirmpassword, pekerja.pekerja_confirmpassword);
+      // console.log(isValidPassword);
+
+      // if (!isValidPassword) {
+      //   return commonHelper.response(res, null, 403, "Password is invalid");
+      // }
+      delete pekerja.pekerja_confirmpassword;
+      const payload = {
+        email: pekerja.pekerja_email,
+        // role: user.role,
+      };
+      pekerja.token = authHelper.generateToken(payload);
+      pekerja.refreshToken = authHelper.generateRefreshToken(payload);
+
+      commonHelper.response(res, pekerja, 201, "login is successful");
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  sendEmail: async (req, res, next) => {
+    const { pekerja_email } = req.body;
+    await sendEmail(pekerja_email, "Verify Email", url);
+  },
+  profile: async (req, res, next) => {
+    const pekerja_email = req.payload.pekerja_email;
+    const {
+      rows: [user],
+    } = await findEmail(pekerja_email);
+    delete pekerja.pekerja_password;
+    commonHelper.response(res, user, 200);
   },
 
   updatepekerja: async (req, res) => {
     try {
-      const { pekerja_name, pekerja_jobdesk, pekerja_domisili, pekerja_tempat_kerja, pekerja_deskripsi} = req.body;
+      const { pekerja_name, pekerja_jobdesk, pekerja_domisili, pekerja_tempat_kerja, pekerja_deskripsi } = req.body;
       const pekerja_id = String(req.params.id);
       const { rowCount } = await findUUID(pekerja_id);
       if (!rowCount) {
@@ -149,8 +352,8 @@ let pekerjaController = {
         pekerja_id,
         pekerja_name,
         pekerja_photo,
-        pekerja_jobdesk, 
-        pekerja_domisili, 
+        pekerja_jobdesk,
+        pekerja_domisili,
         pekerja_tempat_kerja,
         pekerja_deskripsi
       };
@@ -222,29 +425,7 @@ let pekerjaController = {
     }
   },
 
-  loginpekerja: async (req, res) => {
-    const { pekerja_email, pekerja_confirmpassword } = req.body;
-    const {
-      rows: [pekerja],
-    } = await findEmail(pekerja_email);
-    if (!pekerja) {
-      return res.json({ message: "Email Wrong" });
-    }
-    const isValidPassword = bcrypt.compareSync(
-      pekerja_confirmpassword,
-      pekerja.pekerja_confirmpassword
-    );
-    if (!isValidPassword) {
-      return res.json({ message: "Password Wrong" });
-    }
-    delete pekerja.pekerja_confirmpassword;
-    const payload = {
-      pekerja_email: pekerja.pekerja_email,
-    };
-    pekerja.token_user = authHelper.generateToken(payload);
-    pekerja.refreshToken = authHelper.generateRefreshToken(payload);
-    commonHelper.response(res, pekerja, 201, "Login Successfuly");
-  },
+
 
   refreshToken: (req, res) => {
     const refreshToken = req.body.refreshToken;

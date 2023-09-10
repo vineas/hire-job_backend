@@ -60,3 +60,74 @@ CREATE TABLE
         perekrut_instagram VARCHAR(255),
         perekrut_linkedin VARCHAR(255)
     );
+
+
+
+-- =========================================================
+CREATE TABLE
+    pekerja (
+        pekerja_id VARCHAR NOT NULL PRIMARY KEY,
+        pekerja_name VARCHAR,
+        pekerja_email VARCHAR,
+        pekerja_phone VARCHAR,
+        pekerja_password VARCHAR,
+        pekerja_confirmpassword VARCHAR,
+        pekerja_photo VARCHAR,
+        pekerja_jobdesk VARCHAR,
+        pekerja_domisili VARCHAR,
+        pekerja_tempat_kerja VARCHAR,
+        pekerja_deskripsi TEXT,
+        verify text not null,
+        created_on timestamp default CURRENT_TIMESTAMP not null,
+        updated_on timestamp default CURRENT_TIMESTAMP not null
+    );
+
+CREATE FUNCTION UPDATE_UPDATED_ON_PEKERJA() RETURNS 
+TRIGGER AS $$ 
+	$$ BEGIN NEW.updated_on = now();
+	RETURN NEW;
+	END;
+	$$ language 'plpgsql';
+
+
+CREATE TRIGGER UPDATE_PEKERJA_UPDATED_ON 
+	update_pekerja_updated_on BEFORE
+	UPDATE ON pekerja FOR EACH ROW
+	EXECUTE
+	    PROCEDURE update_updated_on_pekerja();
+
+
+create table
+    pekerja_verification (
+        id text not null,
+        pekerja_id text,
+        token text,
+        created_on timestamp default CURRENT_TIMESTAMP not null,
+        constraint pekerja foreign key(pekerja_id) references pekerja(id) ON DELETE CASCADE,
+        primary key (id)
+    )
+
+-- =================================
+CREATE OR REPLACE FUNCTION update_updated_on_pekerja()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_on = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER update_pekerja_updated_on
+BEFORE UPDATE ON pekerja
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_on_pekerja();
+
+
+create table
+    pekerja_verification (
+        id text not null,
+        pekerja_id text,
+        token text,
+        created_on timestamp default CURRENT_TIMESTAMP not null,
+        constraint pekerja foreign key(pekerja_id) references pekerja(pekerja_id) ON DELETE CASCADE,
+        primary key (id)
+    )

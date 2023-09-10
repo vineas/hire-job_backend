@@ -3,7 +3,8 @@ const router = express.Router();
 const uploadPekerja = require("../middlewares/uploadPekerja");
 const pekerjaController = require("../controller/pekerja");
 router
-  .post("/register", uploadPekerja, pekerjaController.registerPekerja)
+  .post("/register", pekerjaController.registerPekerja)
+  .get('/verify',pekerjaController.VerifyAccount)
   .post("/login", pekerjaController.loginpekerja)
   .get("/profile/:id", pekerjaController.getSelectPekerja)
   .get("/profile", pekerjaController.getAllPekerja)

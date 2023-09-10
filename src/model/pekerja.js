@@ -33,11 +33,7 @@ const createpekerja = (data) => {
     pekerja_confirmpasswordHash,
     pekerja_name,
     pekerja_phone,
-    pekerja_photo,
-    pekerja_jobdesk,
-    pekerja_domisili,
-    pekerja_tempat_kerja,
-    pekerja_deskripsi
+    verify
   } = data;
   return Pool.query(`INSERT INTO pekerja(
     pekerja_id, 
@@ -45,12 +41,8 @@ const createpekerja = (data) => {
     pekerja_password, 
     pekerja_confirmpassword,  
     pekerja_name, 
-    pekerja_phone, 
-    pekerja_photo, 
-    pekerja_jobdesk, 
-    pekerja_domisili, 
-    pekerja_tempat_kerja, 
-    pekerja_deskripsi
+    pekerja_phone,
+    verify
     ) 
     VALUES (
       '${pekerja_id}',
@@ -58,9 +50,8 @@ const createpekerja = (data) => {
       '${pekerja_password}',
       '${pekerja_confirmpasswordHash}',
       '${pekerja_name}',
-    '${pekerja_phone}', 
-    '${pekerja_photo}', 
-    '${pekerja_jobdesk}', '${pekerja_domisili}', '${pekerja_tempat_kerja}', '${pekerja_deskripsi}')`);
+    '${pekerja_phone}',
+    '${verify}')`);
 };
 
 //PUT SELECT pekerja
@@ -115,6 +106,59 @@ const countData = () => {
   return Pool.query(`SELECT COUNT(*) FROM pekerja`);
 };
 
+
+// VERIFY
+
+const registerPekerja = (
+  pekerja_id,
+  pekerja_email,
+  pekerja_password,
+  pekerja_confirmpasswordHash,
+  pekerja_name,
+  pekerja_phone,
+  verify) => {
+  return Pool.query(`insert into pekerja ( 
+    pekerja_id, 
+    pekerja_email, 
+    pekerja_password, 
+    pekerja_confirmpassword,  
+    pekerja_name, 
+    pekerja_phone,
+    verify
+    ) values (       
+      '${pekerja_id}',
+    '${pekerja_email}',
+    '${pekerja_password}',
+    '${pekerja_confirmpasswordHash}',
+    '${pekerja_name}',
+  '${pekerja_phone}',
+  '${verify}') `);
+};
+
+const createPekerjaVerification = (id, pekerja_id, token) => {
+  return Pool.query(`insert into pekerja_verification ( id , pekerja_id , token ) values ( '${id}' , '${pekerja_id}' , '${token}' )`);
+};
+
+const checkPekerjaVerification = (queryPekerjaId, queryToken) => {
+  return Pool.query(`select * from pekerja_verification where pekerja_id='${queryPekerjaId}' and token = '${queryToken}' `);
+};
+
+const cekPekerja = (pekerja_email) => {
+  return Pool.query(`select verify from pekerja where pekerja_email = '${pekerja_email}' `);
+};
+
+const deletePekerjaVerification = (queryPekerjaId, queryToken) => {
+  return Pool.query(`delete from pekerja_verification  where pekerja_id='${queryPekerjaId}' and token = '${queryToken}' `);
+};
+
+const updateAccountVerification = (queryPekerjaId) => {
+  return Pool.query(`update pekerja set verify='true' where pekerja_id='${queryPekerjaId}' `);
+}
+
+const findId = (pekerja_id) => {
+  return Pool.query(`select * from pekerja where pekerja_id='${pekerja_id}'`);
+};
+
 module.exports = {
   selectAllpekerja,
   selectpekerja,
@@ -125,4 +169,11 @@ module.exports = {
   findUUID,
   findEmail,
   countData,
+  registerPekerja,
+  createPekerjaVerification,
+  checkPekerjaVerification,
+  cekPekerja,
+  deletePekerjaVerification,
+  updateAccountVerification, 
+  findId
 };

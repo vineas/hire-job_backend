@@ -28,13 +28,7 @@ const createperekrut = (data) => {
     perekrut_jabatan, 
     perekrut_phone, 
     perekrut_password, 
-    perekrut_confirmpasswordHash, 
-    perekrut_photo,
-    perekrut_bidang, 
-    perekrut_kota, 
-    perekrut_deskripsi,
-    perekrut_instagram, 
-    perekrut_linkedin
+    perekrut_confirmpasswordHash
   } = data;
   return Pool.query(`INSERT INTO perekrut(
     perekrut_id, 
@@ -44,13 +38,7 @@ const createperekrut = (data) => {
     perekrut_jabatan, 
     perekrut_phone, 
     perekrut_password, 
-    perekrut_confirmpassword, 
-    perekrut_photo,
-    perekrut_bidang, 
-    perekrut_kota, 
-    perekrut_deskripsi,
-    perekrut_instagram, 
-    perekrut_linkedin
+    perekrut_confirmpassword
     ) 
     VALUES (
         '${perekrut_id}',
@@ -60,13 +48,7 @@ const createperekrut = (data) => {
         '${perekrut_jabatan}', 
         '${perekrut_phone}', 
         '${perekrut_password}',
-        '${perekrut_confirmpasswordHash}',
-        '${perekrut_photo}', 
-        '${perekrut_bidang}', 
-        '${perekrut_kota}', 
-        '${perekrut_deskripsi}',
-        '${perekrut_instagram}', 
-        '${perekrut_linkedin}'
+        '${perekrut_confirmpasswordHash}'
         )`);
 };
 
