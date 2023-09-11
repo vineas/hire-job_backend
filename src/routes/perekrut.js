@@ -5,6 +5,7 @@ const perekrutController = require("../controller/perekrut");
 router
   .post("/register", perekrutController.registerperekrut)
   .post("/login", perekrutController.loginperekrut)
+  .get('/verify',perekrutController.VerifyAccount)
   .get("/profile/:id", perekrutController.getSelectperekrut)
   .get("/profile", perekrutController.getAllperekrut)
   .put("/profile/:id", uploadPerekrut, perekrutController.updateperekrut)

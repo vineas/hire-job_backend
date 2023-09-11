@@ -283,16 +283,6 @@ let pekerjaController = {
           message: "user is unverify"
         })
       }
-
-      // if (!pekerja) {
-      //   return commonHelper.response(res, null, 403, "Email is invalid");
-      // }
-      // const isValidPassword = bcrypt.compareSync(pekerja_confirmpassword, pekerja.pekerja_confirmpassword);
-      // console.log(isValidPassword);
-
-      // if (!isValidPassword) {
-      //   return commonHelper.response(res, null, 403, "Password is invalid");
-      // }
       delete pekerja.pekerja_confirmpassword;
       const payload = {
         email: pekerja.pekerja_email,

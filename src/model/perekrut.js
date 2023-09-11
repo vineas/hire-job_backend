@@ -18,39 +18,6 @@ const deleteperekrut = (perekrut_id) => {
   return Pool.query(`DELETE FROM perekrut WHERE perekrut_id = '${perekrut_id}'`);
 };
 
-//POST perekrut
-const createperekrut = (data) => {
-  const {
-    perekrut_id, 
-    perekrut_name,
-    perekrut_email, 
-    perekrut_perusahaan, 
-    perekrut_jabatan, 
-    perekrut_phone, 
-    perekrut_password, 
-    perekrut_confirmpasswordHash
-  } = data;
-  return Pool.query(`INSERT INTO perekrut(
-    perekrut_id, 
-    perekrut_name,
-    perekrut_email, 
-    perekrut_perusahaan, 
-    perekrut_jabatan, 
-    perekrut_phone, 
-    perekrut_password, 
-    perekrut_confirmpassword
-    ) 
-    VALUES (
-        '${perekrut_id}',
-        '${perekrut_name}',
-        '${perekrut_email}',
-        '${perekrut_perusahaan}', 
-        '${perekrut_jabatan}', 
-        '${perekrut_phone}', 
-        '${perekrut_password}',
-        '${perekrut_confirmpasswordHash}'
-        )`);
-};
 
 //PUT SELECT perekrut
 const updateperekrut = (data) => {
@@ -121,6 +88,68 @@ const countData = () => {
   return Pool.query(`SELECT COUNT(*) FROM perekrut`);
 };
 
+//POST perekrut
+
+const createperekrut = (
+  perekrut_id, 
+  perekrut_name,
+  perekrut_email, 
+  perekrut_perusahaan, 
+  perekrut_jabatan, 
+  perekrut_phone, 
+  perekrut_password, 
+  perekrut_confirmpasswordHash,
+  verify
+  ) => {
+  return Pool.query(`insert into perekrut ( 
+    perekrut_id, 
+    perekrut_name,
+    perekrut_email, 
+    perekrut_perusahaan, 
+    perekrut_jabatan, 
+    perekrut_phone, 
+    perekrut_password, 
+    perekrut_confirmpassword,
+    verify
+    ) values (       
+      '${perekrut_id}',
+        '${perekrut_name}',
+        '${perekrut_email}',
+        '${perekrut_perusahaan}', 
+        '${perekrut_jabatan}', 
+        '${perekrut_phone}', 
+        '${perekrut_password}',
+        '${perekrut_confirmpasswordHash}',
+        '${verify}'
+        ) `);
+};
+
+
+const createPerekrutVerification = (id, perekrut_id, token) => {
+  return Pool.query(`insert into perekrut_verification ( id , perekrut_id , token ) values ( '${id}' , '${perekrut_id}' , '${token}' )`);
+};
+
+const checkPerekrutVerification = (queryPerekrutId, queryToken) => {
+  return Pool.query(`select * from perekrut_verification where perekrut_id='${queryPerekrutId}' and token = '${queryToken}' `);
+};
+
+const cekPerekrut = (perekrut_email) => {
+  return Pool.query(`select verify from perekrut where perekrut_email = '${perekrut_email}' `);
+};
+
+const deletePerekrutVerification = (queryPerekrutId, queryToken) => {
+  return Pool.query(`delete from perekrut_verification  where perekrut_id='${queryPerekrutId}' and token = '${queryToken}' `);
+};
+
+const updateAccountVerification = (queryPerekrutId) => {
+  return Pool.query(`update perekrut set verify='true' where perekrut_id='${queryPerekrutId}' `);
+}
+
+const findId = (perekrut_id) => {
+  return Pool.query(`select * from perekrut where perekrut_id='${perekrut_id}'`);
+};
+
+
 module.exports = {
   selectAllperekrut,
   selectperekrut,
@@ -131,4 +160,10 @@ module.exports = {
   findUUID,
   findEmail,
   countData,
+  createPerekrutVerification,
+  checkPerekrutVerification,
+  cekPerekrut,
+  deletePerekrutVerification,
+  updateAccountVerification,
+  findId
 };
