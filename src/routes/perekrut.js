@@ -12,4 +12,3 @@ router
   .put("/password/:id", uploadPerekrut, perekrutController.updatePasswordperekrut)
   .delete("/profile/:id", perekrutController.deleteperekrut);
 module.exports = router;
-  
