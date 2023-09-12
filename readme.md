@@ -26,11 +26,7 @@
 
 # About The Project
 
-Blanja is an E-commerce website project that aims to provide an easy and convenient online shopping experience for users in Indonesia. The site offers a wide range of products, including fashion, beauty, electronics, and food and beverages.
-
-To use Blanja's services, users only need to create an account and enter their payment details. After that, users can browse products, add them to their shopping cart, and choose their preferred payment method.
-
-With all the features and security provided, Blanja is expected to provide a safe, easy, and convenient online shopping experience for users across Indonesia.
+Hire Job is an innovative application designed to facilitate the interaction between two main types of users: job seekers and recruiters. This application provides an efficient solution in the world of recruitment with a focus on developing job seeker profiles and enabling recruiters to find candidates that match their company's needs.
 
 ## Built With
 
@@ -53,7 +49,7 @@ git clone https://github.com/vineas/hire-job_backend
 2. Change directory to blanja-web
 
 ```sh
-cd backend-expressjs-blanja_project
+cd hire-job_backend
 ```
 
 3. Install all of the required modules
@@ -98,7 +94,7 @@ Documentation files are provided in the [docs](./docs) folder
 
 API endpoint list are also available as published postman documentation
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/27926114/2s9Y5ZwNVy)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/27926114/2s9Y5YT3HD)
 
 ## Related Project
 
